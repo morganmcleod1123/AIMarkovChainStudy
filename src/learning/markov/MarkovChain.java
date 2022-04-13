@@ -1,5 +1,6 @@
 package learning.markov;
 
+import core.Duple;
 import learning.core.Histogram;
 
 import javax.swing.text.html.Option;
@@ -68,12 +69,19 @@ public class MarkovChain<L,S> {
     // P(label | sequence) = P(sequence | label) * P(label)/ P(sequence)
     // P(label | sequence) = probability(sequence, label) * 1/allLabels.size() / combinations of letters
     public LinkedHashMap<L,Double> labelDistribution(ArrayList<S> sequence) {
+        ArrayList<Duple<L, Double>> probList = new ArrayList<>();
         LinkedHashMap<L, Double> probMap = new LinkedHashMap<>();
+        double sumOfLabelProbs = 0.0;
         for(L label : allLabels()){
             double numerator = (probability(sequence, label) * (double)(1/allLabels().size()) + 1);
             double denominator = (1/Math.pow(26, sequence.size())) + 1;
             double pLabelSequence = (numerator/denominator);
-            probMap.put(label, pLabelSequence);
+            // pLabelSequence is the probability of 1 label given sequence
+            probList.add(new Duple<>(label, pLabelSequence));
+            sumOfLabelProbs += pLabelSequence;
+        }
+        for(Duple<L, Double> prob : probList){
+            probMap.put(prob.getFirst(), prob.getSecond() / sumOfLabelProbs);
         }
         return probMap;
     }
